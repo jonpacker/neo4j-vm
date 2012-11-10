@@ -19,12 +19,15 @@ var steps = [{
   }, {
     name: 'build neo4j',
     fn: function(cb) {
-      var neo4j = spawn('mvn', [
+      var mvn = spawn('mvn', [
         'clean', 'install', '-Dmaven.test.skip=true'
       ], {
         cwd: path.join(__dirname, neo4jDir),
         env: { 'JAVA_OPTS': '-Xms384M -Xmx512M -XX:MaxPermSize=256M' }
       });
+      mvn.stdout.pipe(process.stdout);
+      mvn.stderr.pipe(process.stderr);
+      mvn.on('exit', cb);
     }
   }
 ];
@@ -34,7 +37,7 @@ function doStep(step, cb) {
   return step.fn(cb);
 };
 
-async.map(steps, doStep, function(err) {
+async.mapSeries(steps, doStep, function(err) {
   if (err) {
     console.log("Installation failed with error code", err);
   } else {
