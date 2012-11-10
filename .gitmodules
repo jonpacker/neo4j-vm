@@ -1,3 +1,0 @@
-[submodule "neo4j"]
-	path = neo4j
-	url = git://github.com/neo4j/community.git
