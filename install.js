@@ -23,7 +23,7 @@ var steps = [{
         'clean', 'install', '-Dmaven.test.skip=true'
       ], {
         cwd: path.join(__dirname, neo4jDir),
-        env: { 'JAVA_OPTS': '-Xms384M -Xmx512M -XX:MaxPermSize=256M' }
+        env: { 'JAVA_OPTS': '-Xms1024M -Xmx1024M -XX:MaxPermSize=1024M' }
       });
       mvn.stdout.pipe(process.stdout);
       mvn.stderr.pipe(process.stderr);
