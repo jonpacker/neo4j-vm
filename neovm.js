@@ -1,7 +1,6 @@
 var spawn = require('child_process').spawn;
 var async = require('async');
 var path = require('path');
-var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var fmt = require('util').format;
