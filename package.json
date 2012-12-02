@@ -1,6 +1,6 @@
 {
   "name": "neo4j-vm",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "version manager for neo4j",
   "main": "neovm.js",
   "repository": "",
