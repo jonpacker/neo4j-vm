@@ -1,33 +1,68 @@
 var spawn = require('child_process').spawn;
 var async = require('async');
 var path = require('path');
+var http = require('http');
+var qs = require('querystring');
+var fs = require('fs');
+var Untar = require('tar-async/untar');
+var curry = require('naan').curry;
+var streamcatcher = require('collect').collection;
+var url = require('url');
 
-var neo4jDir = 'neo4j';
+var pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')));
+var neo4jRoot = 'neo4j';
+var neo4jDir = path.join(
+  __dirname,
+  neo4jRoot,
+  pkg.neo4j.version,
+  pkg.neo4j.edition
+);
 
-var steps = [{ 
-    name: 'clone neo4j',
+var steps = [
+  {
+    name: 'clean neo4j',
     fn: function(cb) {
-      var git = spawn('git', [
-        'clone', 'git://github.com/neo4j/community.git', neo4jDir
-      ], {
-        cwd: __dirname
-      });
-      git.stdout.pipe(process.stdout);
-      git.stderr.pipe(process.stderr);
-      git.on('exit', cb);
+      var rmExisting = function(cb) {
+        fs.exists(neo4jDir, function(exists) {
+          if (!exists) return cb();
+          spawn('rm', ['-rf', neo4jDir]).on('exit', function() { cb(); });
+        })
+      };
+
+      var mkdir = function(cb) {
+        spawn('mkdir', ['-p', neo4jDir]).on('exit', function() { cb(); });
+      }
+
+      async.series([ rmExisting, mkdir ], cb);
     }
-  }, {
-    name: 'build neo4j',
+  },
+  { 
+    name: 'download/untar neo4j',
     fn: function(cb) {
-      var mvn = spawn('mvn', [
-        'clean', 'install', '-Dmaven.test.skip=true'
-      ], {
-        cwd: path.join(__dirname, neo4jDir),
-        env: { 'JAVA_OPTS': '-Xms1024M -Xmx1024M -XX:MaxPermSize=1024M' }
+      var query = pkg.neo4j;
+      query.distribution = 'tarball';
+
+      var neourl = url.format({
+        protocol: 'http',
+        host: 'download.neo4j.org',
+        pathname: '/artifact',
+        query: query
       });
-      mvn.stdout.pipe(process.stdout);
-      mvn.stderr.pipe(process.stderr);
-      mvn.on('exit', cb);
+
+      console.log(neourl)
+      var curl = spawn('curl', [neourl, '-o', path.join(neo4jDir, 'neo4j.tar')]);
+      curl.stdout.pipe(process.stdout);
+      curl.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
+    }
+  },
+  {
+    name: 'Untar neo4j',
+    fn: function(cb) {
+      var tar = spawn('tar', ['-xvf', path.join(neo4jDir, 'neo4j.tar')], {
+        cwd: neo4jDir
+      });
+      tar.stdout.pipe(process.stdout);
+      tar.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
     }
   }
 ];
