@@ -1,14 +1,10 @@
 {
-  "name": "neomock",
+  "name": "neo4j-vm",
   "version": "0.0.0",
-  "description": "create a disposable neo4j db for testing",
+  "description": "version manager for neo4j",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "neo4j": {
-    "version": "1.9.M01",
-    "edition": "community"
   },
   "repository": "",
   "author": "",
