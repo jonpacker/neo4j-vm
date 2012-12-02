@@ -44,18 +44,22 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
 
     // Download folder
     function download(cb) {
-      var query = { version: version, edition: edition };
-      query.distribution = 'tarball';
+      fs.exists(tarfile, function(exists) { 
+        if (exists) return cb();
 
-      var neourl = url.format({
-        protocol: 'http',
-        host: 'download.neo4j.org',
-        pathname: '/artifact',
-        query: query
+        var query = { version: version, edition: edition };
+        query.distribution = 'tarball';
+
+        var neourl = url.format({
+          protocol: 'http',
+          host: 'download.neo4j.org',
+          pathname: '/artifact',
+          query: query
+        });
+
+        var curl = spawn('curl', [neourl, '-o', tarfile], cd);
+        curl.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
       });
-
-      var curl = spawn('curl', [neourl, '-o', tarfile], cd);
-      curl.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
     },
 
     function extract(cb) {
