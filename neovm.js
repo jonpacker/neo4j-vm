@@ -44,7 +44,7 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
 
     // Download folder
     function download(cb) {
-      fs.exists(tarfile, function(exists) { 
+      fs.exists(path.join(__dirname, tarfile), function(exists) { 
         if (exists) return cb();
 
         var query = { version: version, edition: edition };
