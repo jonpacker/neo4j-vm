@@ -17,11 +17,12 @@ function addCbOnExit(process, cb) {
   var out = streamEater(process.stdout);
   var err = streamEater(process.stderr);
   process.on('exit', function(ec) {
-    if (ec) return cb({
-      errorCode: ec,
-      stdout: out(),
-      stderr: err()
-    });
+    if (ec) {
+      var error = new Error(ec);
+      error.stdout = out();
+      error.stderr = err();
+      return cb(error);
+    }
     cb();
   });
 };
