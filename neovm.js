@@ -8,6 +8,24 @@ var fmt = require('util').format;
 var neo4jRoot = 'neo4j';
 var cd = {cwd: __dirname};
 
+function addCbOnExit(process, cb) {
+  function streamEater(stream) {
+    var chunks = [];
+    stream.on('data', function(chunk) { chunks.push(chunk); });
+    return function() { return chunks.join("") };
+  };
+  var out = streamEater(process.stdout);
+  var err = streamEater(process.stderr);
+  process.on('exit', function(ec) {
+    if (ec) return cb({
+      errorCode: ec,
+      stdout: out(),
+      stderr: err()
+    });
+    cb();
+  });
+};
+
 // Downloads and extracts the given version of neo4j. Callback = (err, path),
 // where path is the absolute pathname for version of neo4j that was downloaded.
 // If the optional argument `noclean` is truthy, no cleaning will be performed,
@@ -36,9 +54,8 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
       fs.exists(absoluteTarget, function(exists) {
         if (!exists) return cb();
         else if (exists && noclean) return cb('already installed');
-        spawn('rm', ['-rf', absoluteTarget], cd).on('exit', function() {
-          cb();
-        });
+        var rm = spawn('rm', ['-rf', absoluteTarget], cd);
+        addCbOnExit(rm, cb);
       })
     },
 
@@ -58,14 +75,13 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
         });
 
         var curl = spawn('curl', [neourl, '-o', tarfile], cd);
-        curl.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
+        addCbOnExit(curl, cb);
       });
     },
 
     function extract(cb) {
       var tar = spawn('tar', ['-xvf', tarfile, '-C', neo4jRoot], cd);
-      tar.stdout.pipe(process.stdout);
-      tar.on('exit', function(ec) { if (ec) return cb(ec); cb(); });
+      addCbOnExit(tar, cb);
     }
   ], function(err) {
     if (!err || err == 'already installed') cb(null, absoluteTarget);
