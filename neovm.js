@@ -10,18 +10,19 @@ var cd = {cwd: __dirname};
 
 function addCbOnExit(process, cb) {
   function streamEater(stream) {
-    var chunks = [];
-    stream.on('data', function(chunk) { chunks.push(chunk); });
-    return function() { return chunks.join("") };
+    var output = "";
+    stream.on('data', function(chunk) { output += chunk; });
+    return function() { return output; };
   };
   var out = streamEater(process.stdout);
   var err = streamEater(process.stderr);
   process.on('exit', function(ec) {
-    if (ec) return cb({
-      errorCode: ec,
-      stdout: out(),
-      stderr: err()
-    });
+    if (ec) {
+      var error = new Error(ec);
+      error.stdout = out();
+      error.stderr = err();
+      return cb(error);
+    }
     cb();
   });
 };
