@@ -1,6 +1,6 @@
 {
   "name": "neo4j-vm",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "version manager for neo4j",
   "main": "neovm.js",
   "repository": "https://github.com/jonpacker/neo4j-vm",
