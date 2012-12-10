@@ -10,9 +10,9 @@ var cd = {cwd: __dirname};
 
 function addCbOnExit(process, cb) {
   function streamEater(stream) {
-    var chunks = [];
-    stream.on('data', function(chunk) { chunks.push(chunk); });
-    return function() { return chunks.join("") };
+    var output = "";
+    stream.on('data', function(chunk) { output += chunk; });
+    return function() { return output; };
   };
   var out = streamEater(process.stdout);
   var err = streamEater(process.stderr);
