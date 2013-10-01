@@ -37,9 +37,10 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
     noclean = true;
   }
 
-  var targetFolder = fmt('neo4j-%s-%s-unix', edition, version);
+  var targetFolder = fmt('neo4j-%s-%s', edition, version);
+  var targetFolderWithPfm = targetFolder + '-unix';
   var absoluteTarget = path.join(__dirname, neo4jRoot, targetFolder);
-  var tarfilename = fmt('%s.tar.gz', targetFolder);
+  var tarfilename = fmt('%s.tar.gz', targetFolderWithPfm);
   var tarfile = path.join(neo4jRoot, tarfilename);
 
   async.series([
