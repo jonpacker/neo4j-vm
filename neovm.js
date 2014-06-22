@@ -72,8 +72,8 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
 
         var neourl = url.format({
           protocol: 'http',
-          host: 'dist.neo4j.org',
-          pathname: '/' + tarfilename,
+          host: 'download.neo4j.org',
+          pathname: '/artifact',
           query: query
         });
 
