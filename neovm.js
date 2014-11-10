@@ -67,13 +67,12 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
       fs.exists(path.join(__dirname, tarfile), function(exists) { 
         if (exists) return cb();
 
-        var query = { version: version, edition: edition };
-        query.distribution = 'tarball';
+        var query = { name: tarfilename };
 
         var neourl = url.format({
           protocol: 'http',
           host: 'download.neo4j.org',
-          pathname: '/artifact',
+          pathname: '/artifact.php',
           query: query
         });
 
