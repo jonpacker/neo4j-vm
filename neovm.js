@@ -71,12 +71,13 @@ module.exports = function installNeoVersion(version, edition, noclean, cb) {
 
         var neourl = url.format({
           protocol: 'http',
-          host: 'download.neo4j.org',
+          host: 'neo4j.com',
           pathname: '/artifact.php',
           query: query
         });
 
         var curl = spawn('curl', [neourl, '-o', tarfile], cd);
+        console.log(neourl);
         addCbOnExit(curl, cb);
       });
     },
